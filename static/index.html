@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Médiathèque - Gestion des Abonnés</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Abonnés de la Médiathèque</h1>
+
+        <!-- Formulaire d'ajout d'abonné -->
+        <h2>Ajouter un Abonné</h2>
+        <form action="/abonnee/insert_abonnee" method="POST">
+            <input type="text" name="nom" placeholder="Nom" required>
+            <input type="text" name="prenom" placeholder="Prénom" required>
+            <input type="text" name="adresse" placeholder="Adresse" required>
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <!-- Liste des Abonnés -->
+        <h2>Liste des Abonnés</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Adresse</th>
+                    <th>Date d'inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for abonne in abonnes %}
+                <tr>
+                    <td>{{ abonne._id }}</td>
+                    <td>{{ abonne.nom }}</td>
+                    <td>{{ abonne.prenom }}</td>
+                    <td>{{ abonne.adresse }}</td>
+                    <td>{{ abonne.date_inscription }}</td>
+                    <td>
+                        <a href="/abonnee/abonnes/{{ abonne._id }}/edit">Modifier</a> |
+                        <a href="/abonnee/abonnes/{{ abonne._id }}/delete">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

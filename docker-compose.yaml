@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"  # Map Flask app to localhost:5000
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+    volumes:
+      - .:/app  # Mount local files for development
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongo_container
+    ports:
+      - "27017:27017"  # Map MongoDB to localhost:27017
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
