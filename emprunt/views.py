@@ -19,6 +19,7 @@ def make_document_available(document_id):
 
 @app.route('/insert_emprunt', methods=['POST'])
 def insert_emprunt():
+    from abonnee.models import Abonnes, Documents, Emprunts
     data = request.json
 
     abonne = Abonnes.objects(id=data["abonne_id"]).first()
@@ -36,7 +37,7 @@ def insert_emprunt():
     nouvel_emprunt.save()
     document.update(set__disponible=False)
 
-    date_retour_prevue = datetime.strptime(data["date_retour_prevue"], "%Y-%m-%d %H:%M:%S")
+    date_retour_prevue = datetime.strptime(data["date_retour_prevue"], "%Y-%m-%d")
     scheduler.add_job(
         make_document_available,
         trigger="date",
@@ -60,7 +61,7 @@ def get_emprunts():
     for doc in documents:
         if doc.disponible:
             documents_list.append({
-            "_id": str(doc.id),
+            "id": str(doc.id),
             "titre": doc.titre,
             "type": doc.type,
             "auteur": doc.auteur,
