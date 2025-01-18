@@ -1,0 +1,101 @@
+openapi: 3.0.1
+info:
+  title: MEDIATHEQUE
+  version: 1.0.5
+  description: API de gestion des abonnés et des emprunts pour une médiathèque.
+servers:
+  - url: "http://localhost:5000"
+    description: Serveur de développement
+paths:
+  /abonnee/insert_abonnee:
+    post:
+      summary: Ajouter un nouvel abonné
+      description: Cette route permet d'ajouter un nouvel abonné dans la médiathèque.
+      operationId: ajouterAbonne
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  description: Nom de l'abonné
+                prenom:
+                  type: string
+                  description: Prénom de l'abonné
+                adresse:
+                  type: string
+                  description: Adresse de l'abonné
+      responses:
+        '201':
+          description: Abonné ajouté avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+        '400':
+          description: Champs manquants ou invalides
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /abonnee/get_abonnes:
+    get:
+      summary: Récupérer la liste des abonnés
+      description: Cette route permet de récupérer la liste de tous les abonnés.
+      operationId: getAbonnes
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    nom:
+                      type: string
+                    prenom:
+                      type: string
+                    adresse:
+                      type: string
+                    date_inscription:
+                      type: string
+
+components:
+  schemas:
+    Abonne:
+      type: object
+      properties:
+        id:
+          type: string
+        nom:
+          type: string
+        prenom:
+          type: string
+        adresse:
+          type: string
+        date_inscription:
+          type: string
+        emprunts_en_cours:
+          type: array
+          items:
+            type: object
+        historique_emprunts:
+          type: array
+          items:
+            type: object

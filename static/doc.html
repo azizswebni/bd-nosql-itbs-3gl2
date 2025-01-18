@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Médiathèque - Gestion des Abonnés & Documents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6">
+        <!-- Navigation -->
+        <nav class="flex justify-around bg-blue-600 text-white p-4 rounded-md mb-6">
+            <a href="/abonnee/get_abonnes" class="hover:underline">Abonnés</a>
+            <a href="/document/get_documents" class="hover:underline">Documents</a>
+            <a href="/emprunt/get_emprunts" class="hover:underline">Emprunts</a>
+        </nav>
+
+        <!-- Main Title -->
+        <h1 class="text-3xl font-bold text-center mb-8">Gestion de la Médiathèque</h1>
+
+        <!-- Add Document Form -->
+        <section class="bg-white p-6 rounded-md shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Ajouter un Document</h2>
+            <form id="documentForm" class="grid grid-cols-1 gap-4">
+                <input type="text" id="titre" name="titre" placeholder="Titre" required
+                    class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select id="type" name="type" required
+                        class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                        <option value="Livre">Livre</option>
+                        <option value="Magazine">Magazine</option>
+                        <option value="DVD">DVD</option>
+                        <option value="CD">CD</option>
+                        <option value="E-book">E-book</option>
+                    </select>
+                </div>
+                <input type="text" id="auteur" name="auteur" placeholder="Auteur" required
+                    class="border border-gray-300                     p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                        Ajouter
+                    </button>
+                </form>
+            </section>
+    
+            <!-- Documents List -->
+            <section class="bg-white p-6 rounded-md shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Liste des Documents</h2>
+                <table class="min-w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Titre</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Auteur</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Date de publication</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Disponible</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                        <tr class="odd:bg-white even:bg-gray-50">
+                            <td class="border border-gray-300 px-4 py-2">{{ document.id }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ document.titre }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ document.type }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ document.auteur }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ document.date_publication }}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                {{ "Oui" if document.disponible else "Non" }}
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                <a href="/document/edit_document/{{ document.id }}"
+                                    class="text-blue-600 hover:underline mr-2">Modifier</a>
+                                <button onclick="deleteDocument('{{ document.id }}')"
+                                    class="text-red-600 hover:underline">Supprimer</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    
+        <script>
+            // Ajout d'un document
+            document.getElementById("documentForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+    
+                let data = {
+                    titre: document.getElementById("titre").value,
+                    type: document.getElementById("type").value,
+                    auteur: document.getElementById("auteur").value
+                };
+    
+                fetch("/document/insert_document", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(data => location.reload())
+                    .catch(error => console.error("Erreur :", error));
+            });
+    
+            // Suppression d'un document
+            function deleteDocument(id) {
+                if (confirm("Voulez-vous vraiment supprimer ce document ?")) {
+                    fetch(`/document/delete_document/${id}`, {
+                        method: "DELETE"
+                    })
+                        .then(response => response.json())
+                        .then(data => location.reload())
+                        .catch(error => console.error("Erreur :", error));
+                }
+            }
+        </script>
+    </body>
+    
+    </html>
+    

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Abonné</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6 max-w-lg bg-white rounded-md shadow-md">
+        <!-- Title -->
+        <h1 class="text-2xl font-semibold text-center mb-6">Modifier Abonné</h1>
+
+        <!-- Update Form -->
+        <form id="updateForm" class="grid gap-4">
+            <input type="hidden" id="id_abonne" value="{{ abonne.id }}">
+
+            <!-- Name Input -->
+            <div>
+                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                <input type="text" id="nom" name="nom" placeholder="Nom" value="{{ abonne.nom }}" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <!-- First Name Input -->
+            <div>
+                <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                <input type="text" id="prenom" name="prenom" placeholder="Prénom" value="{{ abonne.prenom }}" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <!-- Address Input -->
+            <div>
+                <label for="adresse" class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                <input type="text" id="adresse" name="adresse" placeholder="Adresse" value="{{ abonne.adresse }}" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                Modifier
+            </button>
+        </form>
+
+        <!-- Back Link -->
+        <div class="mt-6 text-center">
+            <a href="/abonnee/get_abonnes" class="text-blue-600 hover:underline">Retour à la liste des abonnés</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById("updateForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get form values
+            let id = document.getElementById("id_abonne").value;
+            let data = {
+                nom: document.getElementById("nom").value,
+                prenom: document.getElementById("prenom").value,
+                adresse: document.getElementById("adresse").value
+            };
+
+            // Send PUT request to update the subscriber
+            fetch(`/abonnee/update_abonnes/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.href = "/abonnee/get_abonnes";
+                })
+                .catch(error => console.error("Erreur :", error));
+        });
+    </script>
+</body>
+
+</html>

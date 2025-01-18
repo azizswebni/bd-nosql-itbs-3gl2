@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6 max-w-lg bg-white rounded-md shadow-md">
+        <!-- Title -->
+        <h1 class="text-2xl font-semibold text-center mb-6">Modifier Document</h1>
+
+        <!-- Update Form -->
+        <form id="updateForm" class="grid gap-4">
+            <input type="hidden" id="id_abonne" value="{{ document.id }}">
+
+            <!-- Title Input -->
+            <div>
+                <label for="titre" class="block text-sm font-medium text-gray-700 mb-2">Titre</label>
+                <input type="text" id="titre" name="titre" placeholder="Titre" value="{{ document.titre }}" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <!-- Type Dropdown -->
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select id="type" name="type" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="Livre" {% if document.type == "Livre" %}selected{% endif %}>Livre</option>
+                    <option value="Magazine" {% if document.type == "Magazine" %}selected{% endif %}>Magazine</option>
+                    <option value="DVD" {% if document.type == "DVD" %}selected{% endif %}>DVD</option>
+                    <option value="CD" {% if document.type == "CD" %}selected{% endif %}>CD</option>
+                    <option value="E-book" {% if document.type == "E-book" %}selected{% endif %}>E-book</option>
+                </select>
+            </div>
+
+            <!-- Author Input -->
+            <div>
+                <label for="auteur" class="block text-sm font-medium text-gray-700 mb-2">Auteur</label>
+                <input type="text" id="auteur" name="auteur" placeholder="Auteur" value="{{ document.auteur }}" required
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                Modifier
+            </button>
+        </form>
+
+        <!-- Back Link -->
+        <div class="mt-6 text-center">
+            <a href="/document/get_documents" class="text-blue-600 hover:underline">Retour à la liste des documents</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById("updateForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get form values
+            let id = document.getElementById("id_abonne").value;
+            let data = {
+                titre: document.getElementById("titre").value,
+                type: document.getElementById("type").value,
+                auteur: document.getElementById("auteur").value
+            };
+
+            // Send PUT request to update the document
+            fetch(`/document/update_document/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.href = "/document/get_documents";
+                })
+                .catch(error => console.error("Erreur :", error));
+        });
+    </script>
+</body>
+
+</html>

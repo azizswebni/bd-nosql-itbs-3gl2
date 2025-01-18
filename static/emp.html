@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Médiathèque - Gestion des Emprunts & Documents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6">
+        <!-- Navigation -->
+        <nav class="flex justify-around bg-blue-600 text-white p-4 rounded-md mb-6">
+            <a href="/abonnee/get_abonnes" class="hover:underline">Abonnés</a>
+            <a href="/document/get_documents" class="hover:underline">Documents</a>
+            <a href="/emprunt/get_emprunts" class="hover:underline">Emprunts</a>
+        </nav>
+
+        <!-- Main Title -->
+        <h1 class="text-3xl font-bold text-center mb-8">Gestion de la Médiathèque</h1>
+
+        <!-- Add Loan Form -->
+        <section class="bg-white p-6 rounded-md shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Ajouter un Emprunt</h2>
+            <form id="empruntForm" class="grid grid-cols-1 gap-4">
+                <div>
+                    <label for="abonne_id" class="block font-medium mb-2">Abonné</label>
+                    <select id="abonne_id" name="abonne_id" required
+                        class="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for abonne in abonnes %}
+                        <option value="{{ abonne.id }}">{{ abonne.nom }} {{ abonne.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="document_id" class="block font-medium mb-2">Document</label>
+                    <select id="document_id" name="document_id" required
+                        class="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for document in documents %}
+                        <option value="{{ document.id }}">{{ document.titre }} - {{ document.auteur }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="date_retour_prevue" class="block font-medium mb-2">Date de retour prévue</label>
+                    <input type="date" id="date_retour_prevue" name="date_retour_prevue" required
+                        class="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                    Ajouter Emprunt
+                </button>
+            </form>
+        </section>
+
+        <!-- Loan List -->
+        <section class="bg-white p-6 rounded-md shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Liste des Emprunts</h2>
+            <table class="min-w-full border-collapse border border-gray-300">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Abonné</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Document</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Date Emprunt</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Date Retour Prévue</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Statut</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emprunt in emprunts %}
+                    <tr class="odd:bg-white even:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.id }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.abonne.nom }} {{ emprunt.abonne.prenom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.document.titre }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.date_emprunt }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.date_retour_prevue }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ emprunt.statut }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <button onclick="deleteEmprunt('{{ emprunt.id }}')"
+                                class="text-red-600 hover:underline">Supprimer</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        // Handle form submission for adding a loan
+        document.getElementById("empruntForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            let data = {
+                abonne_id: document.getElementById("abonne_id").value,
+                document_id: document.getElementById("document_id").value,
+                date_retour_prevue: document.getElementById("date_retour_prevue").value
+            };
+
+            fetch("/emprunt/insert_emprunt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => location.reload())
+                .catch(error => console.error("Erreur :", error));
+        });
+
+        // Handle loan deletion
+        function deleteEmprunt(id) {
+            if (confirm("Voulez-vous vraiment supprimer cet emprunt ?")) {
+                fetch(`/emprunt/delete_emprunt/${id}`, {
+                    method: "DELETE"
+                })
+                    .then(response => response.json())
+                    .then(data => location.reload())
+                    .catch(error => console.error("Erreur :", error));
+            }
+        }
+    </script>
+</body>
+
+</html>

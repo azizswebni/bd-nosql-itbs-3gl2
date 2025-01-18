@@ -2,7 +2,7 @@
 import datetime
 from flask import jsonify, render_template, request
 
-from abonnee.models import Abonne
+from abonnee.models import Abonnes
 
 from . import app
 from flask.views import MethodView
@@ -13,11 +13,10 @@ from run import db
 def ajouter_abonne():
     data = request.json
 
-    # Vérifier que les champs obligatoires sont fournis
     if not all(k in data for k in ["nom", "prenom", "adresse"]):
         return jsonify({"message": "Les champs 'nom', 'prenom' et 'adresse' sont obligatoires"}), 400
 
-    nouvel_abonne = Abonne(
+    nouvel_abonne = Abonnes(
         nom=data["nom"],
         prenom=data["prenom"],
         adresse=data["adresse"],
@@ -30,7 +29,7 @@ def ajouter_abonne():
 
 @app.route('/get_abonnes', methods=['GET'])
 def get_abonnes():
-    abonnés = Abonne.objects()
+    abonnés = Abonnes.objects()
 
     abonnés_list = []
     for abonne in abonnés:
@@ -41,14 +40,13 @@ def get_abonnes():
             "adresse": abonne.adresse,
             "date_inscription": abonne.date_inscription.isoformat()
         })
-
-    return jsonify(abonnés_list),200
+    return render_template('index.html', abonnes=abonnés)
 
 @app.route('/update_abonnes/<id_abonne>', methods=['PUT'])
 def modifier_abonne(id_abonne):
     data = request.json
 
-    abonne = Abonne.objects(id=id_abonne).first()
+    abonne = Abonnes.objects(id=id_abonne).first()
 
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
@@ -63,10 +61,20 @@ def modifier_abonne(id_abonne):
 
 @app.route('/delete_abonnee/<id_abonne>', methods=['DELETE'])
 def supprimer_abonne(id_abonne):
-    abonne = Abonne.objects(id=id_abonne).first()
+    abonne = Abonnes.objects(id=id_abonne).first()
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
 
     abonne.delete()
 
     return jsonify({"message": "Abonné supprimé avec succès"}), 200
+
+
+@app.route('/edit_abonne/<id_abonne>', methods=['GET'])
+def edit_abonne(id_abonne):
+    abonne = Abonnes.objects(id=id_abonne).first()
+    if not abonne:
+        return jsonify({"message": "Abonné non trouvé"}), 404
+
+    # Passer les informations de l'abonné au template HTML
+    return render_template('modification.html', abonne=abonne)

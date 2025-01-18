@@ -1,53 +1,112 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Médiathèque - Gestion des Abonnés</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Médiathèque - Gestion des Abonnés & Documents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Gestion des Abonnés de la Médiathèque</h1>
 
-        <!-- Formulaire d'ajout d'abonné -->
-        <h2>Ajouter un Abonné</h2>
-        <form action="/abonnee/insert_abonnee" method="POST">
-            <input type="text" name="nom" placeholder="Nom" required>
-            <input type="text" name="prenom" placeholder="Prénom" required>
-            <input type="text" name="adresse" placeholder="Adresse" required>
-            <button type="submit">Ajouter</button>
-        </form>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6">
+        <!-- Navigation -->
+        <nav class="flex justify-around bg-blue-600 text-white p-4 rounded-md mb-6">
+            <a href="/abonnee/get_abonnes" class="hover:underline">Abonnés</a>
+            <a href="/document/get_documents" class="hover:underline">Documents</a>
+            <a href="/emprunt/get_emprunts" class="hover:underline">Emprunts</a>
+        </nav>
 
-        <!-- Liste des Abonnés -->
-        <h2>Liste des Abonnés</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Adresse</th>
-                    <th>Date d'inscription</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for abonne in abonnes %}
-                <tr>
-                    <td>{{ abonne._id }}</td>
-                    <td>{{ abonne.nom }}</td>
-                    <td>{{ abonne.prenom }}</td>
-                    <td>{{ abonne.adresse }}</td>
-                    <td>{{ abonne.date_inscription }}</td>
-                    <td>
-                        <a href="/abonnee/abonnes/{{ abonne._id }}/edit">Modifier</a> |
-                        <a href="/abonnee/abonnes/{{ abonne._id }}/delete">Supprimer</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Main Title -->
+        <h1 class="text-3xl font-bold text-center mb-8">Gestion de la Médiathèque</h1>
+
+        <!-- Add Subscriber Form -->
+        <section class="bg-white p-6 rounded-md shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Ajouter un Abonné</h2>
+            <form id="abonneeForm" class="grid grid-cols-1 gap-4">
+                <input type="text" id="nom" name="nom" placeholder="Nom" required
+                    class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="prenom" name="prenom" placeholder="Prénom" required
+                    class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="adresse" name="adresse" placeholder="Adresse" required
+                    class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                    Ajouter
+                </button>
+            </form>
+        </section>
+
+        <!-- Subscriber List -->
+        <section class="bg-white p-6 rounded-md shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Liste des Abonnés</h2>
+            <table class="min-w-full border-collapse border border-gray-300">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Nom</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Prénom</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Adresse</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Date d'inscription</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abonne in abonnes %}
+                    <tr class="odd:bg-white even:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">{{ abonne.id }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ abonne.nom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ abonne.prenom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ abonne.adresse }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ abonne.date_inscription }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <a href="/abonnee/edit_abonne/{{ abonne.id }}"
+                                class="text-blue-600 hover:underline mr-2">Modifier</a>
+                            <button onclick="deleteAbonne('{{ abonne.id }}')"
+                                class="text-red-600 hover:underline">Supprimer</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
     </div>
+
+    <script>
+        // Ajout d'un abonné
+        document.getElementById("abonneeForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            let data = {
+                nom: document.getElementById("nom").value,
+                prenom: document.getElementById("prenom").value,
+                adresse: document.getElementById("adresse").value
+            };
+
+            fetch("/abonnee/insert_abonnee", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => location.reload())
+                .catch(error => console.error("Erreur :", error));
+        });
+
+        // Suppression d'un abonné
+        function deleteAbonne(id) {
+            if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
+                fetch(`/abonnee/delete_abonnee/${id}`, {
+                    method: "DELETE"
+                })
+                    .then(response => response.json())
+                    .then(data => location.reload())
+                    .catch(error => console.error("Erreur :", error));
+            }
+        }
+    </script>
 </body>
+
 </html>
